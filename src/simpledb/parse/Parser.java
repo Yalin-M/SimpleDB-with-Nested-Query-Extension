@@ -1,12 +1,14 @@
 package simpledb.parse;
 
 import java.util.*;
+
 import simpledb.query.*;
 import simpledb.record.Schema;
 
 /**
  * The SimpleDB parser.
  * @author Edward Sciore
+ * @author Onur Kapcik
  */
 public class Parser {
    private Lexer lex;
@@ -37,10 +39,43 @@ public class Parser {
    
    public Term term() {
       Expression lhs = expression();
-      lex.eatDelim('=');
+      String delimeter = getDelim();
       Expression rhs = expression();
-      return new Term(lhs, rhs);
+      return new Term(lhs, delimeter, rhs);
    }
+   
+   public String getDelim(){
+	   if(lex.matchDelim('>')){
+		   lex.eatDelim('>');
+		   if(lex.matchDelim('=')){
+			   lex.eatDelim('=');
+			   return ">=";
+		   }
+		   return ">";
+	   }
+	   else if(lex.matchDelim('=')){
+		   lex.eatDelim('=');
+		   return "=";
+	   }
+	   else if(lex.matchDelim('<')){
+		   lex.eatDelim('<');
+		   if(lex.matchDelim('>')){
+			   lex.eatDelim('>');
+			   return "<>";
+		   } else if(lex.matchDelim('=')){
+			   lex.eatDelim('=');
+			   return "<=";
+		   }
+		   return "<";
+	   } else if(lex.matchDelim('!')){
+		   lex.matchDelim('!');
+		   lex.matchDelim('=');
+		   return "!=";
+	   }
+	   else 
+		   return null;
+   }
+   
    
    public Predicate predicate() {
       Predicate pred = new Predicate(term());
@@ -241,5 +276,6 @@ public class Parser {
       lex.eatDelim(')');
       return new CreateIndexData(idxname, tblname, fldname);
    }
+   
 }
 

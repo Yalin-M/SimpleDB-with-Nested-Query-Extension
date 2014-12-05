@@ -1,26 +1,46 @@
 package simpledb.query;
 
+import simpledb.parse.QueryData;
 import simpledb.record.Schema;
+import simpledb.query.Expression;
 
 /**
  * A term is a comparison between two expressions.
- * @author Edward Sciore
- *
+ * @author  Edward Sciore
+ * @author Onur Kapcik 
  */
 public class Term {
+	
    private Expression lhs, rhs;
+   private QueryData queryData;
+   private String delimiter;
    
    /**
     * Creates a new term that compares two expressions
     * for equality.
-    * @param lhs  the LHS expression
-    * @param rhs  the RHS expression
+    * @param lhs        the LHS expression
+    * @param delimiter  delimiter of the query
+    * @param rhs  		the RHS expression
     */
-   public Term(Expression lhs, Expression rhs) {
+   public Term(Expression lhs, String delimiter, Expression rhs) {
       this.lhs = lhs;
       this.rhs = rhs;
+      this.delimiter = delimiter;
    }
    
+   /**
+    * Creates a new term that compares expression and nested query
+    * for delimiter
+    * @param lhs        the LHS expression
+    * @param delimiter  delimiter of the query
+    * @param queryData  nested query
+    * */
+   public Term(Expression lhs, String delimiter, QueryData queryData){
+	   this.lhs = lhs;
+	   this.queryData = queryData;
+	   this.delimiter = delimiter;
+   }
+
    /**
     * Calculates the extent to which selecting on the term reduces 
     * the number of records output by a query.
@@ -112,10 +132,37 @@ public class Term {
     * @return true if both expressions have the same value in the scan
     */
    public boolean isSatisfied(Scan s) {
-      Constant lhsval = lhs.evaluate(s);
-      Constant rhsval = rhs.evaluate(s);
-      return rhsval.equals(lhsval);
+	   Constant lhsval = lhs.evaluate(s);
+	   if(this.delimiter.equals("=") 
+			   && this.compare(lhsval, s) == 0)
+		   return true;
+	   else if (this.delimiter.equals(">") 
+			   && this.compare(lhsval, s) > 0)
+		   return true;
+	   else if (this.delimiter.equals("<") 
+			   && this.compare(lhsval, s) < 0)
+		   return true;
+	   else if (this.delimiter.equals(">=") 
+			   && this.compare(lhsval, s) > 0)
+		   return true;
+	   else if (this.delimiter.equals("<=") 
+			   && this.compare(lhsval, s) <= 0)
+		   return true;
+	   else if ((this.delimiter.equals("!=") 
+			   || this.delimiter.equals("<>"))
+			   && this.compare(lhsval, s) != 0)
+		   return true;
+	   else 
+		   return false;
    }
+   
+   
+   public int compare(Constant lhsval, Scan s){
+	   if(this.rhs != null)
+		   return lhsval.compareTo(this.rhs.evaluate(s));
+	   else 
+		   return lhsval.compareTo(queryData.evaluate(s));
+   }  
    
    public String toString() {
       return lhs.toString() + "=" + rhs.toString();

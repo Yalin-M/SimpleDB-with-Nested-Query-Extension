@@ -40,4 +40,8 @@ public class BasicQueryPlanner implements QueryPlanner {
       p = new ProjectPlan(p, data.fields());
       return p;
    }
+   
+   public boolean hasNestedQuery(QueryData queryData){
+	   return false;
+   }
 }

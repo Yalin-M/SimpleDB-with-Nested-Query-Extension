@@ -1,6 +1,7 @@
 package simpledb.file;
 
 import static simpledb.file.Page.BLOCK_SIZE;
+
 import java.io.*;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
@@ -133,7 +134,8 @@ public class FileMgr {
       FileChannel fc = openFiles.get(filename);
       if (fc == null) {
          File dbTable = new File(dbDirectory, filename);
-         RandomAccessFile f = new RandomAccessFile(dbTable, "rws");
+         @SuppressWarnings("resource")
+		RandomAccessFile f = new RandomAccessFile(dbTable, "rws");
          fc = f.getChannel();
          openFiles.put(filename, fc);
       }

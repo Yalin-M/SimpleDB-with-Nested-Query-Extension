@@ -6,6 +6,7 @@ import java.util.*;
 /**
  * Data for the SQL <i>select</i> statement.
  * @author Edward Sciore
+ * @author Onur Kapcik
  */
 public class QueryData {
    private Collection<String> fields;
@@ -59,5 +60,13 @@ public class QueryData {
       if (!predstring.equals(""))
          result += " where " + predstring;
       return result;
+   }
+   
+   public Constant evaluate(Scan s) throws RuntimeException{
+	   if(this.fields.size() == 1){
+		   return s.getVal(((ArrayList<String>) this.fields).get(0));
+	   } else {
+		   throw new RuntimeException("Can contain only one field");
+	   }
    }
 }
