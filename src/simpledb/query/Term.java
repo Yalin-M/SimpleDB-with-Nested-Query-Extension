@@ -143,7 +143,7 @@ public class Term {
 			   && this.compare(lhsval, s) < 0)
 		   return true;
 	   else if (this.delimiter.equals(">=") 
-			   && this.compare(lhsval, s) > 0)
+			   && this.compare(lhsval, s) >= 0)
 		   return true;
 	   else if (this.delimiter.equals("<=") 
 			   && this.compare(lhsval, s) <= 0)
