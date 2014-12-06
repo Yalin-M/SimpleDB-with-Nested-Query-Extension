@@ -2,6 +2,7 @@ package simpledb.planner;
 
 import simpledb.tx.Transaction;
 import simpledb.query.Plan;
+import simpledb.parse.Parser;
 import simpledb.parse.QueryData;
 
 /**
@@ -18,5 +19,5 @@ public interface QueryPlanner {
     * @param tx the calling transaction
     * @return a plan for that query
     */
-   public Plan createPlan(QueryData data, Transaction tx);
+   public Plan createPlan(QueryData data, Transaction tx, Parser parser);
 }

@@ -13,9 +13,15 @@ import simpledb.record.Schema;
 public class Parser {
    private Lexer lex;
    private QueryData queryData;
+   private int queryLevel;
+   private HashMap<Integer , QueryData> queryMaps = new HashMap<Integer, QueryData>();
    
    public Parser(String s) {
       lex = new Lexer(s);
+   }
+   
+   public HashMap<Integer, QueryData> getQueryMaps(){
+	   return this.queryMaps;
    }
    
 // Methods for parsing predicates, terms, expressions, constants, and fields
@@ -48,35 +54,35 @@ public class Parser {
    }
    
    private boolean isNestedQuery(){
-	   if(lex.matchDelim('(')){
-		   lex.eatDelim('(');
-		   lex.eatKeyword("select");
-		   this.queryData = query();
-		   if(lex.matchDelim(')'))
-			   lex.eatDelim(')');
-		   return true;
-	   }
-	   return false;
+	  if(lex.matchDelim('(')){
+		  lex.eatDelim('(');
+		  this.queryData = query();
+		  queryMaps.put(queryLevel, this.queryData);
+		  if(lex.matchDelim(')'))
+			  lex.eatDelim(')');
+		  return true;
+	  }
+	  return false;
    }
    
    public String getDelim(){
-	   if(lex.matchDelim('>')){
-		   lex.eatDelim('>');
-		   if(lex.matchDelim('=')){
-			   lex.eatDelim('=');
-			   return ">=";
-		   }
-		   return ">";
-	   }
-	   else if(lex.matchDelim('=')){
-		   lex.eatDelim('=');
-		   return "=";
-	   }
-	   else if(lex.matchDelim('<')){
-		   lex.eatDelim('<');
-		   if(lex.matchDelim('>')){
-			   lex.eatDelim('>');
-			   return "<>";
+	  if(lex.matchDelim('>')){
+		  lex.eatDelim('>');
+		  if(lex.matchDelim('=')){
+			  lex.eatDelim('=');
+			  return ">=";
+		  }
+		  return ">";
+	  }
+	  else if(lex.matchDelim('=')){
+		  lex.eatDelim('=');
+		  return "=";
+	  }
+	  else if(lex.matchDelim('<')){
+		  lex.eatDelim('<');
+		  if(lex.matchDelim('>')){
+			  lex.eatDelim('>');
+			  return "<>";
 		   } else if(lex.matchDelim('=')){
 			   lex.eatDelim('=');
 			   return "<=";
