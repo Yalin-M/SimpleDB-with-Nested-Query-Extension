@@ -12,6 +12,7 @@ import simpledb.record.Schema;
  */
 public class Parser {
    private Lexer lex;
+   private QueryData queryData;
    
    public Parser(String s) {
       lex = new Lexer(s);
@@ -39,9 +40,23 @@ public class Parser {
    
    public Term term() {
       Expression lhs = expression();
-      String delimeter = getDelim();
+      String delimiter = getDelim();
+      if(isNestedQuery())
+    	  return new Term(lhs, delimiter, this.queryData);
       Expression rhs = expression();
-      return new Term(lhs, delimeter, rhs);
+      return new Term(lhs, delimiter, rhs);
+   }
+   
+   private boolean isNestedQuery(){
+	   if(lex.matchDelim('(')){
+		   lex.eatDelim('(');
+		   lex.eatKeyword("select");
+		   this.queryData = query();
+		   if(lex.matchDelim(')'))
+			   lex.eatDelim(')');
+		   return true;
+	   }
+	   return false;
    }
    
    public String getDelim(){
@@ -68,8 +83,8 @@ public class Parser {
 		   }
 		   return "<";
 	   } else if(lex.matchDelim('!')){
-		   lex.matchDelim('!');
-		   lex.matchDelim('=');
+		   lex.eatDelim('!');
+		   lex.eatDelim('=');
 		   return "!=";
 	   }
 	   else 
